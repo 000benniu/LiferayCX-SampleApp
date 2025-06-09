@@ -1,0 +1,20 @@
+{
+  "name": "cxsampleapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo 'Build step completed'",
+    "dev": "node -r dotenv/config . dotenv_config_path=./.env"
+  },
+  "author": "Mu'men Tayyem",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv-expand": "^10.0.0",
+    "express": "^4.18.2",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "dotenv": "^16.3.1"
+  }
+}

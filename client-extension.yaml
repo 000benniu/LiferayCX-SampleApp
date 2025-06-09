@@ -1,0 +1,14 @@
+assemble:
+    - from: build
+      include: "**/*"
+      into: static
+name: cxsampleapp
+oAuthApplicationExternalReferenceCode: user-management-oauth-app
+runtime:
+    type: nodejs
+type: customElement
+urls:
+    - "*.js"
+    - "*.css"
+    - "*.html"
+    - "/api/*"

@@ -1,0 +1,79 @@
+{
+  "kind": "Deployment",
+  "id": "cxsampleapp",
+  "image": "liferaycloud/os:8.0.0",
+  "memory": 512,
+  "cpu": 0.5,
+  "scale": 1,
+  "loadBalancer": {
+    "targetPort": 8090,
+    "cdn": false,
+    "customDomains": []
+  },
+  "readinessProbe": {
+    "httpGet": {
+      "path": "/",
+      "port": 8090
+    },
+    "initialDelaySeconds": 15,
+    "periodSeconds": 10,
+    "timeoutSeconds": 3,
+    "successThreshold": 1,
+    "failureThreshold": 3
+  },
+  "livenessProbe": {
+    "httpGet": {
+      "path": "/",
+      "port": 8090
+    },
+    "initialDelaySeconds": 30,
+    "timeoutSeconds": 5,
+    "failureThreshold": 3,
+    "periodSeconds": 15
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "8090"
+  },
+  "environments": {
+    "prd": {
+      "loadBalancer": {
+        "targetPort": 8090,
+        "cdn": false
+      },
+      "scale": 2,
+      "memory": 1024,
+      "cpu": 1,
+      "env": {
+        "NODE_ENV": "production",
+        "LOG_LEVEL": "info"
+      }
+    },
+    "uat": {
+      "loadBalancer": {
+        "targetPort": 8090,
+        "cdn": false
+      },
+      "scale": 1,
+      "memory": 512,
+      "cpu": 0.5,
+      "env": {
+        "NODE_ENV": "staging",
+        "LOG_LEVEL": "info"
+      }
+    },
+    "dev": {
+      "loadBalancer": {
+        "targetPort": 8090,
+        "cdn": false
+      },
+      "scale": 1,
+      "memory": 512,
+      "cpu": 0.5,
+      "env": {
+        "NODE_ENV": "development",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

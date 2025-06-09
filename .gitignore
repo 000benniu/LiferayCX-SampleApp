@@ -1,0 +1,16 @@
+.DS_Store
+.localenv
+**/*.iml
+**/.ivy
+**/.classpath
+**/.project
+**/.sass-cache
+**/.settings
+**/.DS_Store
+**/bin
+**/build
+**/node_modules
+**/test-coverage
+**/tmp
+**/.web_bundle_build
+.idea
