@@ -1,10 +1,10 @@
-# Liferay Client Extension サンプルアプリ
+# Liferay Client Extension Sample App [日本語はこちらへ](./readme_jp.md)
 
-## 🔧 セットアップ手順
+## 🔧 Setup Instructions
 
-### 1. リポジトリのクローンと依存関係のインストール
+### 1. Clone the Repository and Install Dependencies
 
-以下のコマンドを実行してください：
+Please run the following commands:
 
 ```bash
 git clone https://github.com/000benniu/LiferayCX-SampleApp.git
@@ -12,14 +12,14 @@ cd your-repo
 npm install
 ```
 
-### 2. ローカルでの実行
+### 2. Run Locally
 ```bash
 npm run dev
 ```
-起動後、ブラウザで[localhost:8090](http://localhost:8090/)にアクセスできます。
+After starting, you can access [localhost:8090](http://localhost:8090/) in your browser.
 
-### 3. リモート環境へのデプロイ
+### 3. Deploy to Remote Environment
 ```bash
 lcp deploy
 ```
-⚠️ デプロイ後、Liferay Cloud側の[Network・Port設定](https://learn.liferay.com/w/liferay-cloud/configuring-the-cloud-network/load-balancer)が反映されるまで数分～数時間かかる場合があります。反映待ちの間、拡張が即座に利用できないことがありますのでご注意ください。
+⚠️ After deployment, it may take several minutes to several hours for the [Network/Port settings](https://learn.liferay.com/w/liferay-cloud/configuring-the-cloud-network/load-balancer) on Liferay Cloud to be applied. Please note that the extension may not be available immediately while waiting for these changes to take effect.

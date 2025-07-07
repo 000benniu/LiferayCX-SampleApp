@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -10,80 +10,88 @@
   <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Merriweather+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
       rel="stylesheet">
-  <title>SaaSからユーザーアカウント表示</title>
+  <title>Liferay User Account Viewer from SaaS</title>
   <link href="/css/index.css" rel="stylesheet">
 </head>
 
 <body>
   <div class="parent-container">
       <div class="container">
-          <h2>Liferay SaaSからユーザーアカウント表示</h2>
+          <!-- Language Selector Dropdown -->
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+            <select id="languageSelector" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #2196f3; background: #f0f8ff; color: #2196f3; font-weight: 600;">
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+          </div>
+          <h2 id="mainTitle">Liferay User Account Viewer from SaaS</h2>
           
 
           <!-- OAuth2認証フォーム -->
           <div id="oauth2AuthForm" class="input-section">
-              <h3>Liferay SaaS OAuth2設定</h3>
+              <h3 id="oauth2SectionTitle">Liferay SaaS OAuth2 Settings</h3>
               
               <div class="oauth2-reference">
-                  <a href="https://learn.liferay.com/ja/w/dxp/headless-delivery/using-oauth2/creating-oauth2-applications" target="_blank" rel="noopener noreferrer">
-                      Liferay OAuth2アプリケーションの作成ガイド
+                  <a id="oauthGuideLink" href="https://learn.liferay.com/ja/w/dxp/headless-delivery/using-oauth2/creating-oauth2-applications" target="_blank" rel="noopener noreferrer">
+                      Liferay OAuth2 Application Creation Guide
                   </a>
                   <div class="help-text">
-                  <p><strong>Liferay SaaS OAuth2設定手順:</strong></p>
-                  <ol>
-                      <li>Liferay SaaS管理画面にログイン</li>
-                      <li>Control Panel → Configuration → OAuth2 Administration</li>
-                      <li>新しいOAuth2アプリケーションを作成</li>
-                      <li>Client Profile: Web Application</li>
-                      <li>Grant Types: Client Credentials</li>
-                      <li>適切なスコープを設定（Liferay.Headless.Admin.User.everything）</li>
-                  </ol>
-              </div>
+                    <p id="oauthHelpTextTitle"><strong>Liferay SaaS OAuth2 Setup Steps:</strong></p>
+                    <ol id="oauthHelpSteps">
+                        <li>Log in to Liferay SaaS admin panel</li>
+                        <li>Control Panel → Configuration → OAuth2 Administration</li>
+                        <li>Create a new OAuth2 application</li>
+                        <li>Client Name: Sample CX App</li>
+                        <li>Client Authentication Method: Client secret Basic or Post</li>
+                        <li>Allowed Authorization Types: Client Credentials -> Save</li>
+                        <li>Then set appropriate scope (Liferay.Headless.Admin.User.everything)</li>
+                    </ol>
+                  </div>
               </div>
               
               <div class="form-group">
-                  <label for="liferaySaasUrl">Liferay SaaS URL:</label>
+                  <label for="liferaySaasUrl" id="labelSaasUrl">Liferay SaaS URL:</label>
                   <input type="url" id="liferaySaasUrl" placeholder="https://your-company.liferay.cloud" />
-                  <small class="field-help">例: https://your-company.liferay.cloud</small>
+                  <small class="field-help" id="saasUrlHelp">e.g. https://your-company.liferay.cloud</small>
               </div>
               
               <div class="form-group">
-                  <label for="clientId">Client ID:</label>
-                  <input type="text" id="clientId" placeholder="OAuth2 Client IDを入力" />
+                  <label for="clientId" id="labelClientId">Client ID:</label>
+                  <input type="text" id="clientId" placeholder="Enter OAuth2 Client ID" />
               </div>
               <div class="form-group">
-                  <label for="clientSecret">Client Secret:</label>
-                  <input type="password" id="clientSecret" placeholder="OAuth2 Client Secretを入力" />
+                  <label for="clientSecret" id="labelClientSecret">Client Secret:</label>
+                  <input type="password" id="clientSecret" placeholder="Enter OAuth2 Client Secret" />
               </div>
               
               <!-- 自動生成されるURL表示エリア -->
               <div id="generatedUrls" class="generated-urls" style="display: none;">
                   <div class="url-display">
-                      <label>Token URL:</label>
+                      <label id="labelTokenUrl">Token URL:</label>
                       <div id="displayTokenUrl" class="url-value">-</div>
                   </div>
                   <div class="url-display">
-                      <label>API URL:</label>
+                      <label id="labelApiUrl">API URL:</label>
                       <div id="displayApiUrl" class="url-value">-</div>
                   </div>
               </div>
               
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                  <button id="testSaasUrlBtn" class="test-btn" disabled>SaaS URL確認</button>
-                  <button id="getTokenBtn" class="oauth-btn">トークン取得</button>
-                  <button id="oauth2RefreshBtn" class="refresh-btn" disabled>ユーザーリストを取得</button>
+                  <button id="testSaasUrlBtn" class="test-btn" disabled>Check SaaS URL</button>
+                  <button id="getTokenBtn" class="oauth-btn">Get Token</button>
+                  <button id="oauth2RefreshBtn" class="refresh-btn" disabled>Get User List</button>
               </div>
               
               <div id="tokenStatus" class="token-status" style="display: none;">
-                  <p><strong>アクセストークン:</strong> <span id="tokenDisplay">未取得</span></p>
-                  <p><strong>有効期限:</strong> <span id="tokenExpiry">-</span></p>
+                  <p><strong id="labelAccessToken">Access Token:</strong> <span id="tokenDisplay">Not obtained</span></p>
+                  <p><strong id="labelTokenExpiry">Expiry:</strong> <span id="tokenExpiry">-</span></p>
               </div>
             
           </div>
 
           <!-- ローディング表示 -->
           <div id="loadingIndicator" class="loading" style="display: none;">
-              <p>処理中...</p>
+              <p id="loadingText">Processing...</p>
           </div>
 
           <!-- エラーメッセージ -->
@@ -91,10 +99,10 @@
 
           <!-- 出力エリア -->
           <div class="output-section">
-              <h3>ユーザーリスト</h3>
+              <h3 id="userListTitle">User List</h3>
               <div id="summaryInfo" class="summary-info" style="display: none;">
-                <p><strong>総ユーザー数:</strong> <span id="totalCount">0</span></p>
-                <p><strong>ページ:</strong> <span id="currentPage">1</span> | <strong>ページサイズ:</strong> <span id="pageSize">20</span></p>
+                <p><strong id="labelTotalCount">Total Users:</strong> <span id="totalCount">0</span></p>
+                <p><strong id="labelCurrentPage">Page:</strong> <span id="currentPage">1</span> | <strong id="labelPageSize">Page Size:</strong> <span id="pageSize">20</span></p>
                 <p id="dataSource" style="margin: 0; font-style: italic;"></p>
                 <p id="authMethod" style="margin: 0; font-weight: bold;"></p>
               </div>
@@ -102,18 +110,18 @@
                   <table id="userTable">
                     <thead>
                       <tr>
-                        <th>ユーザーID</th>
-                        <th>メールアドレス</th>
-                        <th>ユーザー名</th>
-                        <th>言語ID</th>
-                        <th>作成日</th>
-                        <th>ステータス</th>
-                        <th>最終ログイン</th>
+                        <th id="thUserId">User ID</th>
+                        <th id="thEmail">Email Address</th>
+                        <th id="thUserName">User Name</th>
+                        <th id="thLangId">Language ID</th>
+                        <th id="thCreated">Created Date</th>
+                        <th id="thStatus">Status</th>
+                        <th id="thLastLogin">Last Login</th>
                       </tr>
                     </thead>
                     <tbody id="userTableBody">
                       <tr>
-                        <td colspan="7" class="no-data">ユーザーが読み込まれていません。Liferay SaaS URLを入力してデータを読み込んでください。</td>
+                        <td colspan="7" class="no-data" id="noUserLoaded">No users loaded. Please enter Liferay SaaS URL to load data.</td>
                       </tr>
                     </tbody>
                   </table>
@@ -122,7 +130,7 @@
 
           <!-- フッター -->
           <div class="footer">
-              <p>&copy; 2024 ユーザー管理システム (Liferay SaaS専用). All rights reserved.</p>
+              <p id="footerText">&copy; 2024 User Management System (Liferay SaaS only). All rights reserved.</p>
           </div>
       </div>
   </div>
@@ -152,6 +160,254 @@
       let tokenExpiryTime = null;
       let currentTokenUrl = '';
       let currentApiUrl = '';
+
+      // Language translation logic
+      const translations = {
+        en: {
+          mainTitle: 'Liferay User Account Viewer from SaaS',
+          oauth2SectionTitle: 'Liferay SaaS OAuth2 Settings',
+          oauthGuideLink: 'Liferay OAuth2 Application Creation Guide',
+          oauthHelpText: 'Liferay SaaS OAuth2 Setup Steps:',
+          oauthHelpSteps: [
+            'Log in to Liferay SaaS admin panel',
+            'Control Panel → Configuration → OAuth2 Administration',
+            'Create a new OAuth2 application',
+            'Client Name: Sample CX App',
+            'Client Authentication Method: Client secret Basic or Post',
+            'Allowed Authorization Types: Client Credentials -> Save',
+            'Then set appropriate scope (Liferay.Headless.Admin.User.everything)'
+          ],
+          labelSaasUrl: 'Liferay SaaS URL:',
+          saasUrlHelp: 'e.g. https://your-company.liferay.cloud',
+          labelClientId: 'Client ID:',
+          labelClientSecret: 'Client Secret:',
+          labelTokenUrl: 'Token URL:',
+          labelApiUrl: 'API URL:',
+          testSaasUrlBtn: 'Check SaaS URL',
+          getTokenBtn: 'Get Token',
+          oauth2RefreshBtn: 'Get User List',
+          labelAccessToken: 'Access Token:',
+          labelTokenExpiry: 'Expiry:',
+          loadingText: 'Processing...',
+          userListTitle: 'User List',
+          labelTotalCount: 'Total Users:',
+          labelCurrentPage: 'Page:',
+          labelPageSize: 'Page Size:',
+          thUserId: 'User ID',
+          thEmail: 'Email Address',
+          thUserName: 'User Name',
+          thLangId: 'Language ID',
+          thCreated: 'Created Date',
+          thStatus: 'Status',
+          thLastLogin: 'Last Login',
+          noUserLoaded: 'No users loaded. Please enter Liferay SaaS URL to load data.',
+          footerText: '&copy; 2024 User Management System (Liferay SaaS only). All rights reserved.',
+          dataSourceMock: '📋 Data Source: Mock API (Test Data)',
+          dataSourceSaas: '🌐 Data Source: Liferay SaaS API',
+          authMethodOAuth2: '🔐 Auth Method: OAuth2 (Liferay SaaS)',
+          userNotFound: 'No users found.',
+          userLoadFailed: 'Failed to load users.',
+          invalidDate: 'Invalid date',
+          notLoggedIn: 'Not logged in',
+          loggedIn: 'Logged in',
+          statusActive: 'Active',
+          statusInactive: 'Inactive',
+          statusPending: 'Pending',
+          accessTokenNotObtained: 'Not obtained',
+          errorEnterSaasUrl: 'Please enter the Liferay SaaS URL.',
+          errorEnterAllFields: 'Please enter Client ID, Client Secret, and Liferay SaaS URL.',
+          errorTokenExpired: 'OAuth2 token has expired. Please obtain a new token.',
+          errorGetToken: 'Failed to obtain OAuth2 token: ',
+          errorGetUsers: 'Failed to fetch users from Liferay SaaS: ',
+          errorApiHtml: 'Received HTML response from server. The API endpoint may not be set correctly.',
+          errorGetTokenServer: 'Failed to connect to OAuth2 token server',
+          errorParseToken: 'Failed to parse OAuth2 token response',
+          errorApiConnect: 'Failed to connect to API server',
+          errorApiRequest: 'API request failed',
+          errorTokenInvalid: 'OAuth2 token is invalid or expired. Please obtain a new token.',
+          errorTokenScope: 'OAuth2 token lacks required scope.',
+          errorApiRequestFailed: 'OAuth2 API request failed',
+          errorApiRequestFailedGeneral: 'API request failed',
+          errorUnknown: 'Unknown error',
+          successSaasUrl: 'SaaS URL check succeeded: ',
+          failSaasUrl: 'SaaS URL check failed: ',
+          successGetToken: 'Successfully obtained OAuth2 token. Expiry: ',
+          successGetUsers: 'Successfully fetched {count} users from Liferay SaaS.',
+        },
+        ja: {
+          mainTitle: 'Liferay SaaSからユーザーアカウント表示',
+          oauth2SectionTitle: 'Liferay SaaS OAuth2設定',
+          oauthGuideLink: 'Liferay OAuth2アプリケーションの作成ガイド',
+          oauthHelpText: 'Liferay SaaS OAuth2設定手順:',
+          oauthHelpSteps: [
+            'Liferay SaaS管理画面にログイン',
+            'コントロールパネル → 設定 → OAuth2管理',
+            '新しいOAuth2アプリケーションを作成',
+            'クライアント名: Sample CX App',
+            'クライアント認証方式: Client secret Basic または Post',
+            '許可する認可タイプ: Client Credentials → 保存',
+            'その後、適切なスコープ（Liferay.Headless.Admin.User.everything）を設定'
+          ],
+          labelSaasUrl: 'Liferay SaaS URL:',
+          saasUrlHelp: '例: https://your-company.liferay.cloud',
+          labelClientId: 'Client ID:',
+          labelClientSecret: 'Client Secret:',
+          labelTokenUrl: 'Token URL:',
+          labelApiUrl: 'API URL:',
+          testSaasUrlBtn: 'SaaS URL確認',
+          getTokenBtn: 'トークン取得',
+          oauth2RefreshBtn: 'ユーザーリストを取得',
+          labelAccessToken: 'アクセストークン:',
+          labelTokenExpiry: '有効期限:',
+          loadingText: '処理中...',
+          userListTitle: 'ユーザーリスト',
+          labelTotalCount: '総ユーザー数:',
+          labelCurrentPage: 'ページ:',
+          labelPageSize: 'ページサイズ:',
+          thUserId: 'ユーザーID',
+          thEmail: 'メールアドレス',
+          thUserName: 'ユーザー名',
+          thLangId: '言語ID',
+          thCreated: '作成日',
+          thStatus: 'ステータス',
+          thLastLogin: '最終ログイン',
+          noUserLoaded: 'ユーザーが読み込まれていません。Liferay SaaS URLを入力してデータを読み込んでください。',
+          footerText: '&copy; 2024 ユーザー管理システム (Liferay SaaS専用). All rights reserved.',
+          dataSourceMock: '📋 データソース: モックAPI（テスト用データ）',
+          dataSourceSaas: '🌐 データソース: Liferay SaaS API',
+          authMethodOAuth2: '🔐 認証方法: OAuth2 (Liferay SaaS)',
+          userNotFound: 'ユーザーが見つかりませんでした。',
+          userLoadFailed: 'ユーザーの読み込みに失敗しました。',
+          invalidDate: '無効な日付',
+          notLoggedIn: 'ログインなし',
+          loggedIn: 'ログイン済み',
+          statusActive: 'アクティブ',
+          statusInactive: '非アクティブ',
+          statusPending: '保留中',
+          accessTokenNotObtained: '未取得',
+          errorEnterSaasUrl: 'Liferay SaaS URLを入力してください。',
+          errorEnterAllFields: 'Client ID、Client Secret、およびLiferay SaaS URLを入力してください。',
+          errorTokenExpired: 'OAuth2トークンが期限切れです。新しいトークンを取得してください。',
+          errorGetToken: 'OAuth2トークンの取得に失敗しました: ',
+          errorGetUsers: 'Liferay SaaSからのユーザー取得に失敗しました: ',
+          errorApiHtml: 'サーバーからHTMLレスポンスを受信しました。APIエンドポイントが正しく設定されていない可能性があります。',
+          errorGetTokenServer: 'OAuth2トークンサーバーへの接続に失敗しました',
+          errorParseToken: 'OAuth2トークンレスポンスの解析に失敗しました',
+          errorApiConnect: 'APIサーバーへの接続に失敗しました',
+          errorApiRequest: 'APIリクエストが失敗しました',
+          errorTokenInvalid: 'OAuth2トークンが無効または期限切れです。新しいトークンを取得してください。',
+          errorTokenScope: 'OAuth2トークンに必要なスコープが不足しています。',
+          errorApiRequestFailed: 'OAuth2 APIリクエストが失敗しました',
+          errorApiRequestFailedGeneral: 'APIリクエストが失敗しました',
+          errorUnknown: '不明なエラー',
+          successSaasUrl: 'SaaS URL確認成功: ',
+          failSaasUrl: 'SaaS URL確認失敗: ',
+          successGetToken: 'OAuth2トークンを正常に取得しました。有効期限: ',
+          successGetUsers: 'Liferay SaaSから{count}人のユーザーを正常に取得しました。',
+        }
+      };
+
+      function setLanguage(lang) {
+        const t = translations[lang];
+        const mainTitle = document.getElementById('mainTitle');
+        if (mainTitle) mainTitle.textContent = t.mainTitle;
+        const oauth2SectionTitle = document.getElementById('oauth2SectionTitle');
+        if (oauth2SectionTitle) oauth2SectionTitle.textContent = t.oauth2SectionTitle;
+        const oauthGuideLink = document.getElementById('oauthGuideLink');
+        if (oauthGuideLink) oauthGuideLink.textContent = t.oauthGuideLink;
+        const oauthHelpTextTitle = document.getElementById('oauthHelpTextTitle');
+        if (oauthHelpTextTitle) oauthHelpTextTitle.innerHTML = `<strong>${t.oauthHelpText}</strong>`;
+        const stepsOl = document.getElementById('oauthHelpSteps');
+        if (stepsOl) stepsOl.innerHTML = t.oauthHelpSteps.map(step => `<li>${step}</li>`).join('');
+        const labelSaasUrl = document.getElementById('labelSaasUrl');
+        if (labelSaasUrl) labelSaasUrl.textContent = t.labelSaasUrl;
+        const saasUrlHelp = document.getElementById('saasUrlHelp');
+        if (saasUrlHelp) saasUrlHelp.textContent = t.saasUrlHelp;
+        const labelClientId = document.getElementById('labelClientId');
+        if (labelClientId) labelClientId.textContent = t.labelClientId;
+        const labelClientSecret = document.getElementById('labelClientSecret');
+        if (labelClientSecret) labelClientSecret.textContent = t.labelClientSecret;
+        const labelTokenUrl = document.getElementById('labelTokenUrl');
+        if (labelTokenUrl) labelTokenUrl.textContent = t.labelTokenUrl;
+        const labelApiUrl = document.getElementById('labelApiUrl');
+        if (labelApiUrl) labelApiUrl.textContent = t.labelApiUrl;
+        const testSaasUrlBtnEl = document.getElementById('testSaasUrlBtn');
+        if (testSaasUrlBtnEl) testSaasUrlBtnEl.textContent = t.testSaasUrlBtn;
+        const getTokenBtnEl = document.getElementById('getTokenBtn');
+        if (getTokenBtnEl) getTokenBtnEl.textContent = t.getTokenBtn;
+        const oauth2RefreshBtnEl = document.getElementById('oauth2RefreshBtn');
+        if (oauth2RefreshBtnEl) oauth2RefreshBtnEl.textContent = t.oauth2RefreshBtn;
+        const labelAccessToken = document.getElementById('labelAccessToken');
+        if (labelAccessToken) labelAccessToken.textContent = t.labelAccessToken;
+        const labelTokenExpiry = document.getElementById('labelTokenExpiry');
+        if (labelTokenExpiry) labelTokenExpiry.textContent = t.labelTokenExpiry;
+        const loadingText = document.getElementById('loadingText');
+        if (loadingText) loadingText.textContent = t.loadingText;
+        const userListTitle = document.getElementById('userListTitle');
+        if (userListTitle) userListTitle.textContent = t.userListTitle;
+        const labelTotalCount = document.getElementById('labelTotalCount');
+        if (labelTotalCount) labelTotalCount.textContent = t.labelTotalCount;
+        const labelCurrentPage = document.getElementById('labelCurrentPage');
+        if (labelCurrentPage) labelCurrentPage.textContent = t.labelCurrentPage;
+        const labelPageSize = document.getElementById('labelPageSize');
+        if (labelPageSize) labelPageSize.textContent = t.labelPageSize;
+        const thUserId = document.getElementById('thUserId');
+        if (thUserId) thUserId.textContent = t.thUserId;
+        const thEmail = document.getElementById('thEmail');
+        if (thEmail) thEmail.textContent = t.thEmail;
+        const thUserName = document.getElementById('thUserName');
+        if (thUserName) thUserName.textContent = t.thUserName;
+        const thLangId = document.getElementById('thLangId');
+        if (thLangId) thLangId.textContent = t.thLangId;
+        const thCreated = document.getElementById('thCreated');
+        if (thCreated) thCreated.textContent = t.thCreated;
+        const thStatus = document.getElementById('thStatus');
+        if (thStatus) thStatus.textContent = t.thStatus;
+        const thLastLogin = document.getElementById('thLastLogin');
+        if (thLastLogin) thLastLogin.textContent = t.thLastLogin;
+        const noUserLoaded = document.getElementById('noUserLoaded');
+        if (noUserLoaded) noUserLoaded.textContent = t.noUserLoaded;
+        const footerText = document.getElementById('footerText');
+        if (footerText) footerText.innerHTML = t.footerText;
+        // Update summary info, data source, and auth method if visible
+        const dataSource = document.getElementById('dataSource');
+        if (dataSource && dataSource.textContent) {
+          if (dataSource.textContent.includes('Mock') || dataSource.textContent.includes('モック')) {
+            dataSource.textContent = t.dataSourceMock;
+          } else {
+            dataSource.textContent = t.dataSourceSaas;
+          }
+        }
+        const authMethod = document.getElementById('authMethod');
+        if (authMethod && authMethod.textContent) {
+          authMethod.textContent = t.authMethodOAuth2;
+        }
+      }
+
+      // Set default language to English
+      let currentLang = 'en';
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('languageSelector').value = currentLang;
+        setLanguage(currentLang);
+        document.documentElement.lang = currentLang;
+
+        document.getElementById('languageSelector').addEventListener('change', function() {
+          currentLang = this.value;
+          setLanguage(currentLang);
+          document.documentElement.lang = currentLang;
+          // Optionally, save language preference to localStorage
+          localStorage.setItem('appLanguage', currentLang);
+        });
+
+        // On load, check if language preference is saved
+        const savedLang = localStorage.getItem('appLanguage');
+        if (savedLang && (savedLang === 'en' || savedLang === 'ja')) {
+          currentLang = savedLang;
+          document.getElementById('languageSelector').value = currentLang;
+          setLanguage(currentLang);
+          document.documentElement.lang = currentLang;
+        }
+      });
 
       // Liferay SaaS URL入力時の処理
       liferaySaasUrl.addEventListener('input', function() {
@@ -204,27 +460,32 @@
           }
       }
 
-      function showError(message) {
-          errorMessage.textContent = message;
-          errorMessage.style.display = 'block';
-          errorMessage.style.backgroundColor = '#ffebee';
-          errorMessage.style.color = '#c62828';
-          errorMessage.style.borderLeftColor = '#f44336';
+      function showError(messageKey, extra) {
+        const t = translations[currentLang];
+        let msg = t[messageKey] || t.errorUnknown;
+        if (extra) msg += extra;
+        errorMessage.textContent = msg;
+        errorMessage.style.display = 'block';
+        errorMessage.style.backgroundColor = '#ffebee';
+        errorMessage.style.color = '#c62828';
+        errorMessage.style.borderLeftColor = '#f44336';
       }
 
-      function showSuccess(message) {
-          errorMessage.textContent = message;
-          errorMessage.style.display = 'block';
-          errorMessage.style.backgroundColor = '#e8f5e8';
-          errorMessage.style.color = '#2e7d32';
-          errorMessage.style.borderLeftColor = '#4caf50';
+      function showSuccess(messageKey, extra) {
+        const t = translations[currentLang];
+        let msg = t[messageKey] || '';
+        if (extra) msg += extra;
+        errorMessage.textContent = msg;
+        errorMessage.style.display = 'block';
+        errorMessage.style.backgroundColor = '#e8f5e8';
+        errorMessage.style.color = '#2e7d32';
+        errorMessage.style.borderLeftColor = '#4caf50';
       }
 
       function formatDate(dateString) {
           if (!dateString) return 'N/A';
           const date = new Date(dateString);
-          if (isNaN(date.getTime())) return '無効な日付';
-          
+          if (isNaN(date.getTime())) return translations[currentLang].invalidDate;
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
@@ -238,9 +499,10 @@
         const pageSize = document.getElementById('pageSize');
         const dataSource = document.getElementById('dataSource');
         const authMethod = document.getElementById('authMethod');
+        const t = translations[currentLang];
 
         if (!users || users.length === 0) {
-          userTableBody.innerHTML = '<tr><td colspan="7" class="no-data">ユーザーが見つかりませんでした。</td></tr>';
+          userTableBody.innerHTML = `<tr><td colspan="7" class="no-data">${t.userNotFound}</td></tr>`;
           summaryInfo.style.display = 'none';
           return;
         }
@@ -249,34 +511,28 @@
         totalCount.textContent = responseData.totalCount || users.length;
         currentPage.textContent = responseData.page || 1;
         pageSize.textContent = responseData.pageSize || users.length;
-        
         // データソースの表示
         if (responseData.source === 'mock-api') {
-          dataSource.textContent = '📋 データソース: モックAPI（テスト用データ）';
+          dataSource.textContent = t.dataSourceMock;
           dataSource.style.color = '#ff9800';
         } else {
-          dataSource.textContent = '🌐 データソース: Liferay SaaS API';
+          dataSource.textContent = t.dataSourceSaas;
           dataSource.style.color = '#4caf50';
         }
-
         // 認証方法の表示
         if (responseData.authMethod === 'OAuth2') {
-          authMethod.textContent = '🔐 認証方法: OAuth2 (Liferay SaaS)';
+          authMethod.textContent = t.authMethodOAuth2;
           authMethod.style.color = '#2196f3';
         } else {
           authMethod.textContent = '';
         }
-        
         summaryInfo.style.display = 'block';
-
         const rows = users.map(user => {
-          const lastLogin = user.lastLoginDate ? formatDate(user.lastLoginDate) : (user.hasLoginDate ? 'ログイン済み' : 'ログインなし');
-          
+          const lastLogin = user.lastLoginDate ? formatDate(user.lastLoginDate) : (user.hasLoginDate ? t.loggedIn : t.notLoggedIn);
           let statusText = user.status;
-          if (user.status === 'Active') statusText = 'アクティブ';
-          else if (user.status === 'Inactive') statusText = '非アクティブ';
-          else if (user.status === 'Pending') statusText = '保留中';
-
+          if (user.status === 'Active') statusText = t.statusActive;
+          else if (user.status === 'Inactive') statusText = t.statusInactive;
+          else if (user.status === 'Pending') statusText = t.statusPending;
           return `
             <tr>
               <td>${user.id}</td>
@@ -285,11 +541,10 @@
               <td title="${user.languageId}">${user.languageId}</td>
               <td>${formatDate(user.dateCreated)}</td>
               <td><span class="status-${(user.status || '').toLowerCase()}">${statusText || 'N/A'}</span></td>
-              <td title="${user.lastLoginDate || 'ログイン日なし'}">${lastLogin}</td>
+              <td title="${user.lastLoginDate || t.notLoggedIn}">${lastLogin}</td>
             </tr>
           `;
         }).join('');
-
         userTableBody.innerHTML = rows;
       }
 
@@ -298,15 +553,13 @@
           const saasUrl = liferaySaasUrl.value.trim();
 
           if (!saasUrl) {
-              showError('Liferay SaaS URLを入力してください。');
+              showError('errorEnterSaasUrl');
               return;
           }
 
           showLoading();
 
           try {
-              
-              
               const response = await fetch('/api/test-saas-url', {
                   method: 'POST',
                   headers: {
@@ -320,8 +573,7 @@
               const data = await response.json();
 
               if (data.success) {
-                  showSuccess(`SaaS URL確認成功: ${data.message}`);
-                  
+                  showSuccess('successSaasUrl');
                   // 生成されたURLを更新
                   if (data.generatedUrls) {
                       currentTokenUrl = data.generatedUrls.tokenUrl;
@@ -330,17 +582,14 @@
                       displayApiUrl.textContent = currentApiUrl;
                   }
               } else {
-                  let errorMsg = `SaaS URL確認失敗: ${data.error}`;
+                  let errorMsg = data.error || '';
                   if (data.suggestion) {
                       errorMsg += `\n\n${data.suggestion}`;
                   }
-                  showError(errorMsg);
+                  showError('failSaasUrl', errorMsg);
               }
-              
-              
           } catch (error) {
-              
-              showError(`SaaS URL確認に失敗しました: ${error.message}`);
+              showError('failSaasUrl', error.message);
           } finally {
               hideLoading();
           }
@@ -352,15 +601,13 @@
           const clientSecretValue = clientSecret.value.trim();
 
           if (!clientIdValue || !clientSecretValue || !currentTokenUrl) {
-              showError('Client ID、Client Secret、およびLiferay SaaS URLを入力してください。');
+              showError('errorEnterAllFields');
               return;
           }
 
           showLoading();
 
           try {
-              
-              
               const requestBody = {
                   clientId: clientIdValue,
                   clientSecret: clientSecretValue,
@@ -381,28 +628,23 @@
 
               if (response.ok) {
                   currentAccessToken = data.access_token;
-                  
                   // トークンの有効期限を計算
                   if (data.expires_in) {
                       tokenExpiryTime = new Date(Date.now() + (data.expires_in * 1000));
-                      tokenExpiry.textContent = tokenExpiryTime.toLocaleString('ja-JP');
+                      tokenExpiry.textContent = tokenExpiryTime.toLocaleString(currentLang === 'ja' ? 'ja-JP' : 'en-US');
                   } else {
-                      tokenExpiry.textContent = '不明';
+                      tokenExpiry.textContent = '-';
                   }
-
                   // トークン表示を更新
                   tokenDisplay.textContent = `${currentAccessToken.substring(0, 20)}...`;
                   tokenStatus.style.display = 'block';
                   oauth2RefreshBtn.disabled = false;
-
-                  showSuccess(`OAuth2トークンを正常に取得しました。有効期限: ${data.expires_in ? data.expires_in + '秒' : '不明'}`);
+                  showSuccess('successGetToken', data.expires_in ? (data.expires_in + (currentLang === 'ja' ? '秒' : 's')) : '');
               } else {
-                  throw new Error(data.error || `HTTPエラー! ステータス: ${response.status}`);
+                  throw new Error(data.error || `HTTP error! Status: ${response.status}`);
               }
-              
           } catch (error) {
-              
-              showError(`OAuth2トークンの取得に失敗しました: ${error.message}`);
+              showError('errorGetToken', error.message);
               currentAccessToken = null;
               tokenStatus.style.display = 'none';
               oauth2RefreshBtn.disabled = true;
@@ -414,18 +656,18 @@
       // OAuth2でユーザーリスト取得
       async function fetchUsersWithOAuth2() {
           if (!currentAccessToken) {
-              showError('先にOAuth2トークンを取得してください。');
+              showError('errorGetToken');
               return;
           }
 
           if (!currentApiUrl) {
-              showError('Liferay SaaS URLを入力してください。');
+              showError('errorEnterSaasUrl');
               return;
           }
 
           // トークンの有効期限をチェック
           if (tokenExpiryTime && new Date() >= tokenExpiryTime) {
-              showError('OAuth2トークンが期限切れです。新しいトークンを取得してください。');
+              showError('errorTokenExpired');
               currentAccessToken = null;
               tokenStatus.style.display = 'none';
               oauth2RefreshBtn.disabled = true;
@@ -435,8 +677,6 @@
           showLoading();
 
           try {
-              
-              
               const response = await fetch('/api/oauth2-user-list', {
                   method: 'POST',
                   headers: {
@@ -448,15 +688,11 @@
                   })
               });
 
-              
-
               const contentType = response.headers.get('content-type');
-              
-
               if (!contentType || !contentType.includes('application/json')) {
-                  const textResponse = await response.text();
-                  
-                  throw new Error('サーバーからHTMLレスポンスを受信しました。APIエンドポイントが正しく設定されていない可能性があります。');
+                  await response.text();
+                  showError('errorApiHtml');
+                  return;
               }
 
               const data = await response.json();
@@ -467,16 +703,14 @@
                       tokenStatus.style.display = 'none';
                       oauth2RefreshBtn.disabled = true;
                   }
-                  throw new Error(data.error || `HTTPエラー! ステータス: ${response.status}`);
+                  throw new Error(data.error || `HTTP error! Status: ${response.status}`);
               }
 
               populateTable(data.users, data);
-              showSuccess(`Liferay SaaSから${data.users.length}人のユーザーを正常に取得しました。`);
-              
+              showSuccess('successGetUsers', data.users.length ? data.users.length : '0');
           } catch (error) {
-              
-              showError(`Liferay SaaSからのユーザー取得に失敗しました: ${error.message}`);
-              userTableBody.innerHTML = '<tr><td colspan="7" class="no-data">ユーザーの読み込みに失敗しました。</td></tr>';
+              showError('errorGetUsers', error.message);
+              userTableBody.innerHTML = `<tr><td colspan="7" class="no-data">${translations[currentLang].userLoadFailed}</td></tr>`;
           } finally {
               hideLoading();
           }
@@ -528,6 +762,17 @@
 
       // ページ読み込み時に保存されたデータを読み込み
       loadFormData();
+
+      // Update token display for translation
+      function updateTokenStatusDisplay() {
+        const t = translations[currentLang];
+        tokenDisplay.textContent = currentAccessToken ? `${currentAccessToken.substring(0, 20)}...` : t.accessTokenNotObtained;
+      }
+
+      // Update tokenStatus display on language change
+      document.getElementById('languageSelector').addEventListener('change', function() {
+        updateTokenStatusDisplay();
+      });
   </script>
 </body>
 
